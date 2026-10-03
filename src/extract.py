@@ -26,6 +26,7 @@ def extract_city(city, start_date, end_date):
     }
 
     response = requests.get(BASE_URL, params=params, timeout=30)
+    response.raise_for_status()
 
     data = response.json()
     os.makedirs(RAW_DIR, exist_ok=True)
@@ -40,4 +41,5 @@ def extract_city(city, start_date, end_date):
 
 
 if __name__ == "__main__":
-    extract_city("rio_de_janeiro", "2026-10-01", "2026-10-01")
+    for city in CITIES:
+        extract_city(city, "2026-10-01", "2026-10-01")
