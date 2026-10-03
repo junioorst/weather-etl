@@ -2,25 +2,42 @@ import requests
 import json
 import os
 
-url = "https://archive-api.open-meteo.com/v1/archive"
+BASE_URL = "https://archive-api.open-meteo.com/v1/archive"
+HOURLY_VARS = "temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m"
+RAW_DIR = "data/raw"
 
-params = {
-    "latitude":-30.03,
-    "longitude":-51.23,
-    "start_date":"2026-10-01",
-    "end_date":"2026-10-01",
-    "hourly":"temperature_2m,precipitation,wind_speed_10m",
-    "timezone":"America/Sao_Paulo",
+
+CITIES = {
+    "porto_alegre": {"latitude": -30.03, "longitude": -51.23},
+    "rio_de_janeiro": {"latitude": -22.91, "longitude": -43.17},
 }
 
-response = requests.get(url, params=params, timeout=30)
 
-data = response.json()
-os.makedirs("data/raw", exist_ok=True)
+def extract_city(city, start_date, end_date):
+    coords = CITIES[city]
 
-path = f"data/raw/porto_alegre_{params['start_date'].json}"
+    params = {
+        "latitude": coords["latitude"],
+        "longitude": coords["longitude"],
+        "start_date": start_date,
+        "end_date": end_date,
+        "hourly": HOURLY_VARS,
+        "timezone": "America/Sao_Paulo",
+    }
 
-with open(path, "w", encoding="utf-8") as f:
-    json.dump(data, f, ensure_ascii=False, indent=2)
+    response = requests.get(BASE_URL, params=params, timeout=30)
 
-print(f"File saved in {path}")
+    data = response.json()
+    os.makedirs(RAW_DIR, exist_ok=True)
+
+    path = f"{RAW_DIR}/{city}_{start_date}.json"
+
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    print(f"File saved in {path}")
+    return path
+
+
+if __name__ == "__main__":
+    extract_city("rio_de_janeiro", "2026-10-01", "2026-10-01")
