@@ -36,7 +36,6 @@ def extract_city(city, start_date, end_date):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-    print(f"File saved in {path}")
     return path
 
 
